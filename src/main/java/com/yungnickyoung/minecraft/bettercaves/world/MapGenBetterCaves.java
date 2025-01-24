@@ -6,14 +6,12 @@ import com.yungnickyoung.minecraft.bettercaves.config.io.ConfigLoader;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.bedrock.FlattenBedrock;
-
 import net.minecraft.block.Block;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.MapGenBase;
 import net.minecraft.world.gen.MapGenCaves;
 import net.minecraftforge.event.terraingen.InitMapGenEvent;
-
-import javax.annotation.Nonnull;
 
 /**
  * Class that overrides vanilla cave gen with Better Caves gen.
@@ -37,8 +35,8 @@ public class MapGenBetterCaves extends MapGenCaves {
     }
 
 
-    public void func_151538_a(World worldIn, int p_151538_2_, int p_151538_3_, int p_151538_4_, int p_151538_5_, Block[] p_151538_6_)
-    {}
+    public void func_151538_a(World worldIn, int p_151538_2_, int p_151538_3_, int p_151538_4_, int p_151538_5_, Block[] p_151538_6_) {
+    }
 
     /**
      * Function for generating Better Caves in a single chunk. This overrides the vanilla cave generation, which is
@@ -50,14 +48,15 @@ public class MapGenBetterCaves extends MapGenCaves {
      * @param primer The chunk's ChunkPrimer
      */
     @Override
-    public void generate(World worldIn, int chunkX, int chunkZ, @Nonnull ChunkPrimer primer) {
+    public void func_151539_a(IChunkProvider provider, World worldIn, int chunkX, int chunkZ, Block[] blocks) {
+        ChunkPrimer primer = new ChunkPrimer(blocks);
         // Only operate on whitelisted dimensions.
         if (!BetterCavesUtils.isDimensionWhitelisted(worldIn.provider.dimensionId)) {
-            defaultCaveGen.generate(worldIn, chunkX, chunkZ, primer);
+            defaultCaveGen.func_151539_a(provider, worldIn, chunkX, chunkZ, blocks);
             return;
         }
 
-        if (world == null) { // First call - lazy initialization of all controllers and config
+        if (worldObj == null) { // First call - lazy initialization of all controllers and config
             this.initialize(worldIn);
         }
 
@@ -76,8 +75,7 @@ public class MapGenBetterCaves extends MapGenCaves {
                         int surfaceHeight;
                         if (config.overrideSurfaceDetection.get()) {
                             surfaceHeight = 1; // Don't waste time calculating surface height if it's going to be overridden anyway
-                        }
-                        else {
+                        } else {
                             surfaceHeight = BetterCavesUtils.getSurfaceAltitudeForColumn(primer, startX + offsetX, startZ + offsetZ);
                         }
                         surfaceAltitudes[startX + offsetX][startZ + offsetZ] = surfaceHeight;
@@ -100,14 +98,14 @@ public class MapGenBetterCaves extends MapGenCaves {
      */
     private void initialize(World worldIn) {
         // Extract world information
-        this.world = worldIn;
+        this.worldObj = worldIn;
 
         // Load config for this dimension
-        this.config = ConfigLoader.loadConfigFromFileForDimension(world.provider.getDimension());
+        this.config = ConfigLoader.loadConfigFromFileForDimension(worldObj.provider.dimensionId);
 
         // Initialize controllers
-        this.waterRegionController = new WaterRegionController(world, config);
-        this.caveCarverController = new CaveCarverController(world, config);
+        this.waterRegionController = new WaterRegionController(worldObj, config);
+        this.caveCarverController = new CaveCarverController(worldObj, config);
         this.cavernCarverController = new CavernCarverController(worldIn, config);
     }
 }

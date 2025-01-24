@@ -2,6 +2,7 @@ package com.yungnickyoung.minecraft.bettercaves.world.carver;
 
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseSettings;
 
+import net.minecraft.block.Block;
 import net.minecraft.world.World;
 
 public class CarverSettings {

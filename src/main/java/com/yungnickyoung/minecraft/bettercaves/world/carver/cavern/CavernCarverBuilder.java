@@ -6,6 +6,7 @@ import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverSettings;
 
+import net.minecraft.block.Block;
 import net.minecraft.world.World;
 
 /**

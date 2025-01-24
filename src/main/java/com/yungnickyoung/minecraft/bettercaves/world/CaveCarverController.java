@@ -1,5 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.world;
 
+import cn.tesseract.mycelium.util.BlockPos;
+import cn.tesseract.mycelium.world.ChunkPrimer;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
@@ -13,6 +15,7 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cave.CaveCarverBuilder;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.vanilla.VanillaCaveCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.vanilla.VanillaCaveCarverBuilder;
+import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.world.World;
 import net.minecraftforge.common.BiomeDictionary;
@@ -46,7 +49,7 @@ public class CaveCarverController {
             .replaceGravel(config.replaceFloatingGravel.get())
             .floodedUnderground(config.enableFloodedUnderground.get())
             .debugVisualizerEnabled(config.debugVisualizer.get())
-            .debugVisualizerBlock(Blocks.EMERALD_BLOCK.getDefaultState())
+            .debugVisualizerBlock(Blocks.emerald_block)
             .build();
 
         // Configure cave region controller, which determines what type of cave should be
@@ -63,13 +66,13 @@ public class CaveCarverController {
         // Type 1 caves
         carvers.add(new CaveCarverBuilder(worldIn)
             .ofTypeFromConfig(CaveType.CUBIC, config)
-            .debugVisualizerBlock(Blocks.PLANKS.getDefaultState())
+            .debugVisualizerBlock(Blocks.planks)
             .build()
         );
         // Type 2 caves
         carvers.add(new CaveCarverBuilder(worldIn)
             .ofTypeFromConfig(CaveType.SIMPLEX, config)
-            .debugVisualizerBlock(Blocks.COBBLESTONE.getDefaultState())
+            .debugVisualizerBlock(Blocks.cobblestone)
             .build()
         );
         // Vanilla caves
@@ -82,7 +85,7 @@ public class CaveCarverController {
             .replaceGravel(config.replaceFloatingGravel.get())
             .floodedUnderground(config.enableFloodedUnderground.get())
             .debugVisualizerEnabled(config.debugVisualizer.get())
-            .debugVisualizerBlock(Blocks.BRICK_BLOCK.getDefaultState())
+            .debugVisualizerBlock(Blocks.brick_block)
             .build());
 
         // Remove carvers with no priority
@@ -158,13 +161,13 @@ public class CaveCarverController {
                         int localX = startX + offsetX;
                         int localZ = startZ + offsetZ;
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
-                        flooded = isFloodedUndergroundEnabled && !isDebugViewEnabled && BiomeDictionary.hasType(world.getBiome(colPos), BiomeDictionary.Type.OCEAN);
+                        flooded = isFloodedUndergroundEnabled && !isDebugViewEnabled && BiomeDictionary.isBiomeOfType(world.getBiomeGenForCoords(colPos.x,colPos.z), BiomeDictionary.Type.OCEAN);
                         if (flooded) {
                             if (
-                                !BiomeDictionary.hasType(world.getBiome(colPos.east()), BiomeDictionary.Type.OCEAN) ||
-                                !BiomeDictionary.hasType(world.getBiome(colPos.north()), BiomeDictionary.Type.OCEAN) ||
-                                !BiomeDictionary.hasType(world.getBiome(colPos.west()), BiomeDictionary.Type.OCEAN) ||
-                                !BiomeDictionary.hasType(world.getBiome(colPos.south()), BiomeDictionary.Type.OCEAN)
+                                !BiomeDictionary.isBiomeOfType(world.getBiomeGenForCoords(colPos.x + 1, colPos.z), BiomeDictionary.Type.OCEAN) ||
+                                    !BiomeDictionary.isBiomeOfType(world.getBiomeGenForCoords(colPos.x - 1, colPos.z), BiomeDictionary.Type.OCEAN) ||
+                                    !BiomeDictionary.isBiomeOfType(world.getBiomeGenForCoords(colPos.x, colPos.z + 1), BiomeDictionary.Type.OCEAN) ||
+                                    !BiomeDictionary.isBiomeOfType(world.getBiomeGenForCoordsBody(colPos.x, colPos.z - 1), BiomeDictionary.Type.OCEAN)
                             ) {
                                 continue;
                             }
@@ -174,7 +177,7 @@ public class CaveCarverController {
                         Block liquidBlock = liquidBlocks[localX][localZ];
 
                         // Get noise values used to determine cave region
-                        float caveRegionNoise = caveRegionController.GetNoise(colPos.getX(), colPos.getZ());
+                        float caveRegionNoise = caveRegionController.GetNoise(colPos.x, colPos.z);
 
                         // Carve cave using matching carver
                         for (CarverNoiseRange range : noiseRanges) {

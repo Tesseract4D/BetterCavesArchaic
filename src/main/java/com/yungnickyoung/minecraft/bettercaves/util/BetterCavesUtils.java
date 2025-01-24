@@ -5,10 +5,7 @@ import cn.tesseract.mycelium.world.ChunkPrimer;
 import com.yungnickyoung.minecraft.bettercaves.config.Configuration;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-
 import net.minecraft.init.Blocks;
-import net.minecraft.util.EnumFacing;
-
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 
@@ -20,7 +17,8 @@ import java.util.function.Predicate;
  * and as such may be accessed freely.
  */
 public class BetterCavesUtils {
-    private BetterCavesUtils() {} // Private constructor prevents instantiation
+    private BetterCavesUtils() {
+    } // Private constructor prevents instantiation
 
     /**
      * Returns the y-coordinate of the surface block for a given local block coordinate for a given chunk.
@@ -48,14 +46,14 @@ public class BetterCavesUtils {
     public static int searchSurfaceAltitudeInRangeForColumn(ChunkPrimer primer, int localX, int localZ, int topY, int bottomY) {
         // Edge case: blocks go all the way up to build height
         if (topY == 255
-                && primer.getBlockState(localX, 255, localZ) != Blocks.air
-                && primer.getBlockState(localX, 255, localZ).getMaterial() != Material.water)
+            && primer.getBlockState(localX, 255, localZ) != Blocks.air
+            && primer.getBlockState(localX, 255, localZ).getMaterial() != Material.water)
             return 255;
 
         for (int y = bottomY; y <= topY; y++) {
             Block blockState = primer.getBlockState(localX, y, localZ);
             if (
-                    blockState == Blocks.air
+                blockState == Blocks.air
                     || blockState.getMaterial() == Material.water
             )
                 return y;
@@ -101,18 +99,20 @@ public class BetterCavesUtils {
      * @param isTargetBiome Function to use when testing if a given block's biome is the biome we are lookin for
      */
     public static float biomeDistanceFactor(World world, BlockPos pos, int radius, Predicate<BiomeGenBase> isTargetBiome) {
-        BlockPos checkpos = new BlockPos();
+        MutableBlockPos checkpos = new MutableBlockPos();
         for (int i = 1; i <= radius; i++) {
             for (int j = 0; j <= i; j++) {
                 for (EnumFacing direction : EnumFacing.Plane.HORIZONTAL) {
-                    checkpos.setPos(pos).move(direction, i).move(direction.rotateY(), j);
-                    if (isTargetBiome.test(world.getBiome(checkpos))) {
-                        return (float)(i + j) / (2 * radius);
+                    checkpos.set(pos);
+                    checkpos.move(direction, i).move(direction.rotateY(), j);
+                    if (isTargetBiome.test(world.getBiomeGenForCoords(checkpos.x, checkpos.z))) {
+                        return (float) (i + j) / (2 * radius);
                     }
                     if (j != 0 && i != j) {
-                        checkpos.setPos(pos).move(direction, i).move(direction.rotateYCCW(), j);
-                        if (isTargetBiome.test(world.getBiome(checkpos))) {
-                            return (float)(i + j) / (2 * radius);
+                        checkpos.set(pos);
+                        checkpos.move(direction, i).move(direction.rotateYCCW(), j);
+                        if (isTargetBiome.test(world.getBiomeGenForCoords(checkpos.x, checkpos.z))) {
+                            return (float) (i + j) / (2 * radius);
                         }
                     }
                 }

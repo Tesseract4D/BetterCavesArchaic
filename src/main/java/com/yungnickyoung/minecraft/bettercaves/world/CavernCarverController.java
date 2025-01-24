@@ -1,8 +1,10 @@
 package com.yungnickyoung.minecraft.bettercaves.world;
 
+import cn.tesseract.mycelium.util.BlockPos;
+import cn.tesseract.mycelium.world.ChunkPrimer;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
-import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
+import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
@@ -12,12 +14,10 @@ import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverNoiseRange;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarver;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.cavern.CavernCarverBuilder;
-
+import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.BiomeDictionary;
 
 import java.util.ArrayList;
@@ -35,8 +35,8 @@ public class CavernCarverController {
     private boolean isFloodedUndergroundEnabled;
 
     // Equality checking functions used for closing off flooded caves
-    private static Predicate<Biome> isOcean = b -> BiomeDictionary.hasType(b, BiomeDictionary.Type.OCEAN);
-    private static Predicate<Biome> isNotOcean = b -> !isOcean.test(b);
+    private static Predicate<BiomeGenBase> isOcean = b -> BiomeDictionary.isBiomeOfType(b, BiomeDictionary.Type.OCEAN);
+    private static Predicate<BiomeGenBase> isNotOcean = b -> !isOcean.test(b);
 
     public CavernCarverController(World worldIn, ConfigHolder config) {
         this.world = worldIn;
@@ -47,19 +47,19 @@ public class CavernCarverController {
         // Configure cavern region controller, which determines what type of cavern should be carved in any given region
         float cavernRegionSize = calcCavernRegionSize(config.cavernRegionSize.get(), config.cavernRegionCustomSize.get());
         this.cavernRegionController = new FastNoise();
-        this.cavernRegionController.SetSeed((int)worldIn.getSeed() + 333);
+        this.cavernRegionController.SetSeed((int) worldIn.getSeed() + 333);
         this.cavernRegionController.SetFrequency(cavernRegionSize);
 
         // Initialize all carvers using config options
         List<CavernCarver> carvers = new ArrayList<>();
         carvers.add(new CavernCarverBuilder(worldIn)
             .ofTypeFromConfig(CavernType.LIQUID, config)
-            .debugVisualizerBlock(Blocks.REDSTONE_BLOCK.getDefaultState())
+            .debugVisualizerBlock(Blocks.redstone_block)
             .build()
         );
         carvers.add(new CavernCarverBuilder(worldIn)
             .ofTypeFromConfig(CavernType.FLOORED, config)
-            .debugVisualizerBlock(Blocks.GOLD_BLOCK.getDefaultState())
+            .debugVisualizerBlock(Blocks.gold_block)
             .build()
         );
 
@@ -73,8 +73,8 @@ public class CavernCarverController {
         carvers.removeIf(carver -> carver.getPriority() == 0);
         float totalDeadzonePercent = 1 - spawnChance;
         float deadzonePercent = carvers.size() > 1
-                ? totalDeadzonePercent / (carvers.size() - 1)
-                : totalDeadzonePercent;
+            ? totalDeadzonePercent / (carvers.size() - 1)
+            : totalDeadzonePercent;
 
         BetterCaves.LOGGER.debug("--> DEADZONE PERCENT: " + deadzonePercent + "(" + totalDeadzonePercent + " TOTAL)");
 
@@ -82,7 +82,7 @@ public class CavernCarverController {
 
         for (CavernCarver carver : carvers) {
             BetterCaves.LOGGER.debug("--> CARVER");
-            float rangeCDFPercent = (float)carver.getPriority() / totalPriority * spawnChance;
+            float rangeCDFPercent = (float) carver.getPriority() / totalPriority * spawnChance;
             float topNoise = NoiseUtils.simplexNoiseOffsetByPercent(currNoise, rangeCDFPercent);
             CarverNoiseRange range = new CarverNoiseRange(currNoise, topNoise, carver);
             noiseRanges.add(range);
@@ -136,7 +136,7 @@ public class CavernCarverController {
                         BlockPos colPos = new BlockPos(chunkX * 16 + localX, 1, chunkZ * 16 + localZ);
 
                         if (isFloodedUndergroundEnabled && !isDebugViewEnabled) {
-                            flooded = BiomeDictionary.hasType(world.getBiome(colPos), BiomeDictionary.Type.OCEAN);
+                            flooded = BiomeDictionary.isBiomeOfType(world.getBiomeGenForCoords(colPos.x, colPos.z), BiomeDictionary.Type.OCEAN);
                             smoothAmpFactor = BetterCavesUtils.biomeDistanceFactor(world, colPos, 2, flooded ? isNotOcean : isOcean);
                             if (smoothAmpFactor <= 0) { // Wall between flooded and normal caves.
                                 continue; // Continue to prevent unnecessary noise calculation
@@ -147,14 +147,14 @@ public class CavernCarverController {
                         Block liquidBlock = liquidBlocks[localX][localZ];
 
                         // Get noise values used to determine cavern region
-                        float cavernRegionNoise = cavernRegionController.GetNoise(colPos.getX(), colPos.getZ());
+                        float cavernRegionNoise = cavernRegionController.GetNoise(colPos.x, colPos.z);
 
                         // Carve cavern using matching carver
                         for (CarverNoiseRange range : noiseRanges) {
                             if (!range.contains(cavernRegionNoise)) {
                                 continue;
                             }
-                            CavernCarver carver = (CavernCarver)range.getCarver();
+                            CavernCarver carver = (CavernCarver) range.getCarver();
                             int bottomY = carver.getBottomY();
                             int topY = isDebugViewEnabled ? carver.getTopY() : Math.min(surfaceAltitude, carver.getTopY());
                             if (isOverrideSurfaceDetectionEnabled) {

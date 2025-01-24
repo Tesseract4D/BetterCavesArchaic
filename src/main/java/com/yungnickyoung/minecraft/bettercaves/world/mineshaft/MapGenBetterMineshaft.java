@@ -1,17 +1,15 @@
 package com.yungnickyoung.minecraft.bettercaves.world.mineshaft;
 
-import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.config.io.ConfigLoader;
+import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
-
+import net.minecraft.block.Block;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeMesa;
-import net.minecraft.world.chunk.ChunkPrimer;
+import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraft.world.gen.MapGenBase;
 import net.minecraft.world.gen.structure.*;
 import net.minecraftforge.event.terraingen.InitMapGenEvent;
-
 
 import java.util.Random;
 
@@ -26,50 +24,49 @@ public class MapGenBetterMineshaft extends MapGenMineshaft {
     private int liquidAltitude;
 
     public MapGenBetterMineshaft(InitMapGenEvent event) {
-        this.defaultMineshaftGen = event.getOriginalGen();
+        this.defaultMineshaftGen = event.originalGen;
     }
 
     @Override
     protected StructureStart getStructureStart(int chunkX, int chunkZ) {
         MapGenStructureIO.registerStructure(StructureBetterMineshaftStart.class, "Mineshaft");
-        Biome biome = this.world.getBiome(new BlockPos((chunkX << 4) + 8, 64, (chunkZ << 4) + 8));
-        MapGenMineshaft.Type mapgenmineshaft$type = biome instanceof BiomeMesa ? MapGenMineshaft.Type.MESA : MapGenMineshaft.Type.NORMAL;
-        return new StructureBetterMineshaftStart(this.world, this.rand, chunkX, chunkZ, mapgenmineshaft$type);
+        BiomeGenBase biome = this.worldObj.getBiomeGenForCoords((chunkX << 4) + 8, (chunkZ << 4) + 8);
+        return new StructureBetterMineshaftStart(this.worldObj, this.rand, chunkX, chunkZ);
     }
 
-
     @Override
-    public void generate(World worldIn, int x, int z, ChunkPrimer primer) {
+    public void func_151539_a(IChunkProvider provider, World worldIn, int x, int z, Block[] blocks) {
         // Only operate on whitelisted dimensions.
-        if (!BetterCavesUtils.isDimensionWhitelisted(worldIn.provider.getDimension())) {
-            defaultMineshaftGen.generate(worldIn, x, z, primer);
+        if (!BetterCavesUtils.isDimensionWhitelisted(worldIn.provider.dimensionId)) {
+            defaultMineshaftGen.func_151539_a(provider, worldIn, x, z, blocks);
             return;
         }
 
-        if (world == null) { // First call - lazy initialization
+        if (worldObj == null) { // First call - lazy initialization
             this.initialize(worldIn);
         }
 
-        super.generate(worldIn, x, z, primer);
+        super.func_151539_a(provider, worldIn, x, z, blocks);
     }
 
+
     private void initialize(World worldIn) {
-        this.world = worldIn;
+        this.worldObj = worldIn;
         // Load config for this dimension
-        ConfigHolder config = ConfigLoader.loadConfigFromFileForDimension(worldIn.provider.getDimension());
+        ConfigHolder config = ConfigLoader.loadConfigFromFileForDimension(worldIn.provider.dimensionId);
         this.liquidAltitude = config.liquidAltitude.get();
     }
 
     private class StructureBetterMineshaftStart extends StructureMineshaftStart {
-        public StructureBetterMineshaftStart(World worldIn, Random rand, int chunkX, int chunkZ, MapGenMineshaft.Type type) {
-            super(worldIn, rand, chunkX, chunkZ, type);
+        public StructureBetterMineshaftStart(World worldIn, Random rand, int chunkX, int chunkZ) {
+            super(worldIn, rand, chunkX, chunkZ);
         }
 
         @Override
         public void generateStructure(World worldIn, Random rand, StructureBoundingBox structurebb) {
             components.removeIf(component ->
                 component.getBoundingBox().minY < liquidAltitude + 5 ||
-                        (component.getBoundingBox().intersectsWith(structurebb) && !component.addComponentParts(worldIn, rand, structurebb))
+                    (component.getBoundingBox().intersectsWith(structurebb) && !component.addComponentParts(worldIn, rand, structurebb))
             );
         }
     }

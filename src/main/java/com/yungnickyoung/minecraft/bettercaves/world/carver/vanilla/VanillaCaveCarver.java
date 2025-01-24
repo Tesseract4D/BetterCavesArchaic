@@ -1,16 +1,15 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver.vanilla;
 
+import cn.tesseract.mycelium.util.BlockPos;
+import cn.tesseract.mycelium.world.ChunkPrimer;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
-
+import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.chunk.ChunkPrimer;
 import net.minecraft.world.gen.MapGenCaves;
 import net.minecraftforge.common.BiomeDictionary;
 
@@ -59,7 +58,7 @@ public class VanillaCaveCarver extends MapGenCaves implements ICarver {
      */
     public void generate(World worldIn, int chunkX, int chunkZ, ChunkPrimer primer, boolean addRooms, Block[][] liquidBlocks, boolean[][] carvingMask) {
         int chunkRadius = this.range;
-        this.world = worldIn;
+        this.worldObj = worldIn;
         this.rand.setSeed(worldIn.getSeed());
         long j = this.rand.nextLong();
         long k = this.rand.nextLong();
@@ -220,12 +219,12 @@ public class VanillaCaveCarver extends MapGenCaves implements ICarver {
 
                 // Only continue if cave start is close enough to origin
                 if (caveStartX >= originBlockX - 16.0D - xzOffset * 2.0D && caveStartZ >= originBlockZ - 16.0D - xzOffset * 2.0D && caveStartX <= originBlockX + 16.0D + xzOffset * 2.0D && caveStartZ <= originBlockZ + 16.0D + xzOffset * 2.0D) {
-                    int minX = MathHelper.floor(caveStartX - xzOffset) - originChunkX * 16 - 1;
-                    int minY = MathHelper.floor(caveStartY - yOffset) - 1;
-                    int minZ = MathHelper.floor(caveStartZ - xzOffset) - originChunkZ * 16 - 1;
-                    int maxX = MathHelper.floor(caveStartX + xzOffset) - originChunkX * 16 + 1;
-                    int maxY = MathHelper.floor(caveStartY + yOffset) + 1;
-                    int maxZ = MathHelper.floor(caveStartZ + xzOffset) - originChunkZ * 16 + 1;
+                    int minX = MathHelper.floor_double(caveStartX - xzOffset) - originChunkX * 16 - 1;
+                    int minY = MathHelper.floor_double(caveStartY - yOffset) - 1;
+                    int minZ = MathHelper.floor_double(caveStartZ - xzOffset) - originChunkZ * 16 - 1;
+                    int maxX = MathHelper.floor_double(caveStartX + xzOffset) - originChunkX * 16 + 1;
+                    int maxY = MathHelper.floor_double(caveStartY + yOffset) + 1;
+                    int maxZ = MathHelper.floor_double(caveStartZ + xzOffset) - originChunkZ * 16 + 1;
 
                     if (minX < 0) {
                         minX = 0;
@@ -280,7 +279,7 @@ public class VanillaCaveCarver extends MapGenCaves implements ICarver {
                                         if (this.isDebugVisualizerEnabled)
                                             CarverUtils.debugDigBlock(primer, currX, currY, currZ, debugBlock, true);
                                         else
-                                            digBlock(world, primer, originChunkX, originChunkZ, currX, currY, currZ, liquidBlock, this.liquidAltitude, this.isReplaceGravel);
+                                            digBlock(worldObj, primer, originChunkX, originChunkZ, currX, currY, currZ, liquidBlock, this.liquidAltitude, this.isReplaceGravel);
                                     } else {
                                         if (this.isDebugVisualizerEnabled)
                                             CarverUtils.debugDigBlock(primer, currX, currY, currZ, debugBlock, false);
@@ -303,25 +302,25 @@ public class VanillaCaveCarver extends MapGenCaves implements ICarver {
         BlockPos pos = new BlockPos(chunkX * 16 + localX, y, chunkZ * 16 + localZ);
 
         // Don't dig boundaries between flooded and unflooded openings.
-        boolean flooded = isFloodedUndergroundEnabled && !isDebugVisualizerEnabled && BiomeDictionary.hasType(world.getBiome(pos), BiomeDictionary.Type.OCEAN) && y < world.getSeaLevel();
+        boolean flooded = isFloodedUndergroundEnabled && !isDebugVisualizerEnabled && BiomeDictionary.isBiomeOfType(world.getBiomeGenForCoordsBody(pos.x, pos.z), BiomeDictionary.Type.OCEAN) && y < 63/*world.getSeaLevel()*/;
 
         if (flooded) {
             if (
-                !BiomeDictionary.hasType(world.getBiome(pos.east()), BiomeDictionary.Type.OCEAN) ||
-                !BiomeDictionary.hasType(world.getBiome(pos.north()), BiomeDictionary.Type.OCEAN) ||
-                !BiomeDictionary.hasType(world.getBiome(pos.west()), BiomeDictionary.Type.OCEAN) ||
-                !BiomeDictionary.hasType(world.getBiome(pos.south()), BiomeDictionary.Type.OCEAN)
+                !BiomeDictionary.isBiomeOfType(world.getBiomeGenForCoords(pos.x + 1, pos.z), BiomeDictionary.Type.OCEAN) ||
+                    !BiomeDictionary.isBiomeOfType(world.getBiomeGenForCoords(pos.x - 1, pos.z), BiomeDictionary.Type.OCEAN) ||
+                    !BiomeDictionary.isBiomeOfType(world.getBiomeGenForCoords(pos.x, pos.z + 1), BiomeDictionary.Type.OCEAN) ||
+                    !BiomeDictionary.isBiomeOfType(world.getBiomeGenForCoordsBody(pos.x, pos.z - 1), BiomeDictionary.Type.OCEAN)
             ) {
                 return;
             }
         }
 
-        Block airBlockState = flooded ? Blocks.WATER.getDefaultState() : Blocks.AIR.getDefaultState();
+        Block airBlockState = flooded ? Blocks.water : Blocks.air;
         CarverUtils.digBlock(world, primer, pos, airBlockState, liquidBlockState, liquidAltitude, replaceGravel);
     }
 
     @Override
-    protected boolean isOceanBlock(ChunkPrimer data, int x, int y, int z, int chunkX, int chunkZ) {
+    protected boolean isOceanBlock(Block[] data, int index, int x, int y, int z, int chunkX, int chunkZ) {
         return false;
     }
 }

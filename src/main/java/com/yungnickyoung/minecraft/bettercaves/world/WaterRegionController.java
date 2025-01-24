@@ -120,17 +120,13 @@ public class WaterRegionController {
      * @return frequency value for water region controller
      */
     private float calcWaterRegionSize(RegionSize waterRegionSize, float waterRegionCustomSize) {
-        switch (waterRegionSize) {
-            case Small:
-                return .008f;
-            case Large:
-                return .0028f;
-            case ExtraLarge:
-                return .001f;
-            case Custom:
-                return waterRegionCustomSize;
-            default: // Medium
-                return .004f;
-        }
+        return switch (waterRegionSize) {
+            case Small -> .008f;
+            case Large -> .0028f;
+            case ExtraLarge -> .001f;
+            case Custom -> waterRegionCustomSize;
+            default -> // Medium
+                    .004f;
+        };
     }
 }

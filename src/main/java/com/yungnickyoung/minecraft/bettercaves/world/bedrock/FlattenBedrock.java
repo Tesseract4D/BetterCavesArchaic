@@ -1,14 +1,15 @@
 package com.yungnickyoung.minecraft.bettercaves.world.bedrock;
 
 
+import cn.tesseract.mycelium.world.ChunkPrimer;
+import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.world.chunk.ChunkPrimer;
 
 /**
  * Class containing static method for flattening bedrock.
  */
 public class FlattenBedrock {
-    private static final Block BEDROCK = Blocks.BEDROCK.getDefaultState();
+    private static final Block BEDROCK = Blocks.bedrock;
 
     /**
      * Flattens bedrock in a given chunk
@@ -16,7 +17,7 @@ public class FlattenBedrock {
      * @param bedrockLayerWidth Width of the bedrock layer, in blocks
      */
     public static void flattenBedrock(ChunkPrimer primer, int bedrockLayerWidth) {
-        Block replacementBlock = Blocks.STONE.getDefaultState();
+        Block replacementBlock = Blocks.stone;
 
         // Replace normal bedrock at bottom of map with stone
         for (int x = 0; x < 16; x++)

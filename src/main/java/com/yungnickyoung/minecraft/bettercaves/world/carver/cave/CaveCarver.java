@@ -1,5 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver.cave;
 
+import cn.tesseract.mycelium.util.BlockPos;
+import cn.tesseract.mycelium.world.ChunkPrimer;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseGen;
@@ -9,10 +11,10 @@ import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverSettings;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
 
+import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkPrimer;
 
 import java.util.HashMap;
 import java.util.List;
@@ -73,8 +75,8 @@ public class CaveCarver implements ICarver {
     }
 
     public void carveColumn(ChunkPrimer primer, BlockPos colPos, int topY, NoiseColumn noises, Block liquidBlock, boolean flooded) {
-        int localX = BetterCavesUtils.getLocal(colPos.getX());
-        int localZ = BetterCavesUtils.getLocal(colPos.getZ());
+        int localX = BetterCavesUtils.getLocal(colPos.x);
+        int localZ = BetterCavesUtils.getLocal(colPos.z);
 
         Block airBlockState;
 
@@ -119,7 +121,8 @@ public class CaveCarver implements ICarver {
                 }
             }
 
-            airBlockState = flooded && y < world.getSeaLevel() ? Blocks.WATER.getDefaultState() : Blocks.AIR.getDefaultState();
+            //airBlockState = flooded && y < world.getSeaLevel() ? Blocks.WATER.getDefaultState() : Blocks.AIR.getDefaultState();
+            airBlockState = flooded && y < 63 ? Blocks.water : Blocks.air;
             BlockPos blockPos = new BlockPos(localX, y, localZ);
 
             // Dig out the block if it passed the threshold check, using the debug visualizer if enabled

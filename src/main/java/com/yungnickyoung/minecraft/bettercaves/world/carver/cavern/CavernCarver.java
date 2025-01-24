@@ -1,5 +1,7 @@
 package com.yungnickyoung.minecraft.bettercaves.world.carver.cavern;
 
+import cn.tesseract.mycelium.util.BlockPos;
+import cn.tesseract.mycelium.world.ChunkPrimer;
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.enums.CavernType;
 import com.yungnickyoung.minecraft.bettercaves.noise.NoiseColumn;
@@ -8,11 +10,9 @@ import com.yungnickyoung.minecraft.bettercaves.util.BetterCavesUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverSettings;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.CarverUtils;
 import com.yungnickyoung.minecraft.bettercaves.world.carver.ICarver;
-
+import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-
 import net.minecraft.world.World;
-import net.minecraft.world.chunk.ChunkPrimer;
 
 import java.util.List;
 
@@ -32,12 +32,12 @@ public class CavernCarver implements ICarver {
     public CavernCarver(final CavernCarverBuilder builder) {
         settings = builder.getSettings();
         noiseGen = new NoiseGen(
-                settings.getWorld(),
-                settings.isFastNoise(),
-                settings.getNoiseSettings(),
-                settings.getNumGens(),
-                settings.getyCompression(),
-                settings.getXzCompression()
+            settings.getWorld(),
+            settings.isFastNoise(),
+            settings.getNoiseSettings(),
+            settings.getNumGens(),
+            settings.getyCompression(),
+            settings.getXzCompression()
         );
         world = builder.getSettings().getWorld();
         cavernType = builder.getCavernType();
@@ -52,8 +52,8 @@ public class CavernCarver implements ICarver {
     }
 
     public void carveColumn(ChunkPrimer primer, BlockPos colPos, int topY, float smoothAmp, NoiseColumn noises, Block liquidBlock, boolean flooded) {
-        int localX = BetterCavesUtils.getLocal(colPos.getX());
-        int localZ = BetterCavesUtils.getLocal(colPos.getZ());
+        int localX = BetterCavesUtils.getLocal(colPos.x);
+        int localZ = BetterCavesUtils.getLocal(colPos.z);
 
         Block airBlockState;
 
@@ -113,7 +113,8 @@ public class CavernCarver implements ICarver {
                 digBlock = true;
 
             BlockPos blockPos = new BlockPos(localX, y, localZ);
-            airBlockState = flooded && y < world.getSeaLevel() ? Blocks.WATER.getDefaultState() : Blocks.AIR.getDefaultState();
+            //airBlockState = flooded && y < world.getSeaLevel() ? Blocks.WATER.getDefaultState() : Blocks.AIR.getDefaultState();
+            airBlockState = flooded && y < 63 ? Blocks.water : Blocks.air;
 
             // Dig out the block if it passed the threshold check, using the debug visualizer if enabled
             if (settings.isEnableDebugVisualizer()) {
