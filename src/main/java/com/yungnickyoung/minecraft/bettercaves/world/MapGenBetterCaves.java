@@ -34,10 +34,6 @@ public class MapGenBetterCaves extends MapGenCaves {
         this.defaultCaveGen = event.originalGen;
     }
 
-
-    public void func_151538_a(World worldIn, int p_151538_2_, int p_151538_3_, int p_151538_4_, int p_151538_5_, Block[] p_151538_6_) {
-    }
-
     /**
      * Function for generating Better Caves in a single chunk. This overrides the vanilla cave generation, which is
      * ordinarily performed by the MapGenCaves class.

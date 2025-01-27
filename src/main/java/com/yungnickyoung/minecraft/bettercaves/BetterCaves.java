@@ -1,18 +1,15 @@
 package com.yungnickyoung.minecraft.bettercaves;
 
 // Better Caves
+
 import com.yungnickyoung.minecraft.bettercaves.config.BCSettings;
 import com.yungnickyoung.minecraft.bettercaves.event.EventBetterCaveGen;
-import com.yungnickyoung.minecraft.bettercaves.proxy.IProxy;
-
-// Minecraft Forge API
-import net.minecraftforge.common.MinecraftForge;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.common.MinecraftForge;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -29,8 +26,6 @@ public class BetterCaves {
     /** File referring to the overarching directory for custom dimension configs **/
     public static File customConfigDir;
 
-    @SidedProxy(clientSide = BCSettings.CLIENT_PROXY, serverSide = BCSettings.SERVER_PROXY)
-    public static IProxy proxy;
 
     /**
      * Pre-Initialization FML Life Cycle event handling method which is automatically
@@ -41,8 +36,6 @@ public class BetterCaves {
      */
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        proxy.preInit();
-
         // Create custom dimension config directory if doesn't already exist
         customConfigDir = new File(Loader.instance().getConfigDir(), BCSettings.CUSTOM_CONFIG_PATH);
         try {
