@@ -2,14 +2,16 @@ package com.yungnickyoung.minecraft.bettercaves.config.io;
 
 import com.yungnickyoung.minecraft.bettercaves.BetterCaves;
 import com.yungnickyoung.minecraft.bettercaves.config.util.ConfigHolder;
-import com.yungnickyoung.minecraft.bettercaves.enums.*;
+import com.yungnickyoung.minecraft.bettercaves.enums.RegionSize;
 import com.yungnickyoung.minecraft.bettercaves.noise.FastNoise;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
@@ -29,7 +31,8 @@ public class ConfigLoader {
      * @return ConfigHolder loaded from file for given dimension
      */
     public static ConfigHolder loadConfigFromFileForDimension(int dimensionID) {
-        String fileName = "DIM" + dimensionID + "_config.cfg";
+        return new ConfigHolder();
+        /*String fileName = "DIM" + dimensionID + "_config.cfg";
         File configFile = new File(BetterCaves.customConfigDir, fileName);
 
         if (!configFile.exists() || configFile.isDirectory()) {
@@ -43,7 +46,7 @@ public class ConfigLoader {
         }
 
         BetterCaves.LOGGER.info(String.format("Reading Better Caves config from file for dimension %d...", dimensionID));
-        return parseConfigFromFile(configFile);
+        return parseConfigFromFile(configFile);*/
     }
 
     /**
@@ -57,7 +60,7 @@ public class ConfigLoader {
         ConfigHolder config = new ConfigHolder();
         BufferedReader buffer = null;
         Configuration.UnicodeInputStreamReader input = null;
-        String fileName= file.getName();
+        String fileName = file.getName();
 
         try {
             Map<String, ConfigCategory> categories = new TreeMap<>();
@@ -156,7 +159,7 @@ public class ConfigLoader {
                                 ConfigHolder.ConfigOption target = config.properties.get(fullName);
 
                                 if (target != null) {
-                                    switch(type) {
+                                    switch (type) {
                                         case INTEGER:
                                             if (!(target.type.equals(Integer.TYPE) || target.type.equals(Integer.class))) {
                                                 BetterCaves.LOGGER.error(String.format("ERROR: WRONG TYPE for %s in config %s. Skipping...", fullName, fileName));
@@ -172,7 +175,7 @@ public class ConfigLoader {
                                                 continue;
                                             }
                                             if (target.type == Float.class)
-                                                target.set((float)prop.getDouble());
+                                                target.set((float) prop.getDouble());
                                             else
                                                 target.set(prop.getDouble());
                                             break;
@@ -182,7 +185,7 @@ public class ConfigLoader {
                                                 i = line.length();
                                                 continue;
                                             }
-                                            if (!(line.substring(i+ 1).toLowerCase().equals("true") || line.substring(i+1).toLowerCase().equals("false")))
+                                            if (!(line.substring(i + 1).toLowerCase().equals("true") || line.substring(i + 1).toLowerCase().equals("false")))
                                                 throw new RuntimeException(String.format("Invalid Boolean value for property '%s:%d'", fullName, lineNum));
                                             target.set(prop.getBoolean());
                                             break;

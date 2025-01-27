@@ -1,12 +1,25 @@
-[{
-  "modid": "${modid}",
-  "name": "${name}",
-  "description": "${description}",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "https://www.curseforge.com/minecraft/mc-mods/yungs-better-caves",
-  "updateJSON": "https://raw.githubusercontent.com/yungnickyoung/YUNGs-Better-Caves/1.12.2/versions.json",
-  "authorList": ["YUNGNICKYOUNG"],
-  "credits": "${credits}",
-  "logoFile": "BetterCavesLogo.png"
-}]
+{
+  "modListVersion": 2,
+  "modList": [
+    {
+      "modid": "${modId}",
+      "name": "${modName}",
+      "description": "An example mod for Minecraft 1.7.10 with Forge focused on a stable setup.",
+      "version": "${modVersion}",
+      "mcversion": "${minecraftVersion}",
+      "url": "https://github.com/tesseract4d",
+      "updateUrl": "",
+      "authorList": [
+        "Tesseract"
+      ],
+      "credits": "",
+      "logoFile": "BetterCavesLogo.png",
+      "screenshots": [],
+      "parent": "",
+      "requiredMods": [],
+      "dependencies": [],
+      "dependants": [],
+      "useDependencyInformation": false
+    }
+  ]
+}
