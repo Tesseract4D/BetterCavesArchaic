@@ -4,15 +4,16 @@
     {
       "modid": "${modId}",
       "name": "${modName}",
-      "description": "An example mod for Minecraft 1.7.10 with Forge focused on a stable setup.",
+      "description": "Overhauled cave generation, underground lakes and rivers, lava oceans, and more!",
       "version": "${modVersion}",
       "mcversion": "${minecraftVersion}",
       "url": "https://github.com/tesseract4d",
       "updateUrl": "",
       "authorList": [
-        "Tesseract"
+        "Tesseract",
+        "YUNGNICKYOUNG"
       ],
-      "credits": "",
+      "credits": "Thank YUNGNICKYOUNG for creating the original mod!",
       "logoFile": "BetterCavesLogo.png",
       "screenshots": [],
       "parent": "",

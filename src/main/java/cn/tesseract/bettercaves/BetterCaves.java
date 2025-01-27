@@ -15,7 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 
-@Mod(modid = BCSettings.MOD_ID, name = BCSettings.NAME, version = Tags.VERSION, acceptableRemoteVersions = "*")
+@Mod(modid = BCSettings.MOD_ID, name = BCSettings.NAME, version = Tags.VERSION, dependencies = "required-after:mycelium@[2.3,)", acceptableRemoteVersions = "*")
 public class BetterCaves {
     public static final Logger LOGGER = LogManager.getLogger(BCSettings.MOD_ID);
     public static ConfigBetterCaves config = new ConfigBetterCaves("bettercaves", ConfigInstance.class);
